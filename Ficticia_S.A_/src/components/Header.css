@@ -1,0 +1,58 @@
+.container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.formContainer,
+.loggedInContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  max-width: 300px;
+  padding: 8px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.error {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.buttonsContainer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  width: auto;
+}
+
+.button {
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  transition: background-color 0.3s ease;
+  max-width: 150px;
+  text-align: center;
+}
+
+.button:hover {
+  background-color: #45a049;
+}
+
+.loggedInContainer {
+  text-align: center;
+}

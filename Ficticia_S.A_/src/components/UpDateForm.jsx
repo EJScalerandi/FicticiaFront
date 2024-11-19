@@ -1,11 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockUser } from "../assets/MoksData"; 
-import './Forms.css';  // Asegúrate de importar el CSS
+import axios from "axios"; // Asegúrate de importar axios
+import './Forms.css';
 
 function UpDateForm({ setUserData }) {
-    const [updatedUserData, setUpdatedUserData] = useState(mockUser); 
+    const [updatedUserData, setUpdatedUserData] = useState({
+        username: "",
+        identification: "",
+        age: "",
+        gender: "",
+        status: "",
+        additionalAttributes: "",
+        drives: "",
+        wearsGlasses: "",
+        diabetic: "",
+        otherConditions: "",
+    });
     const navigate = useNavigate();
+
+    // Obtener el userId desde localStorage
+    const userId = localStorage.getItem("userId");
+
+    useEffect(() => {
+        if (!userId) {
+            alert("No se encontró el ID del usuario.");
+            navigate("/"); // Redirigir a la página principal si no se encuentra el userId
+        } else {
+            // Si el userId está presente, hacemos una llamada para obtener los datos del usuario
+            axios.get(`http://localhost:5051/api/persona/${userId}`).then((response) => {
+                setUpdatedUserData(response.data);
+            }).catch(error => {
+                console.error("Error al obtener los datos del usuario:", error);
+                alert("Hubo un error al obtener los datos.");
+            });
+        }
+    }, [userId, navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -15,12 +44,41 @@ function UpDateForm({ setUserData }) {
         });
     };
 
-    const handleUpdate = (e) => {
+    const handleUpdate = async (e) => {
         e.preventDefault();
-        console.log("Formulario enviado", updatedUserData); 
-        setUserData(updatedUserData); 
-        alert("Datos actualizados correctamente.");
-        navigate("/"); 
+        try {
+            // Asignar valores predeterminados si no se ingresan
+            const data = {
+                Id: userId, // Usamos el userId que viene desde localStorage
+                NombreCompleto: updatedUserData.username || "Nombre No Proporcionado",
+                Identificacion: updatedUserData.identification || "",
+                Edad: updatedUserData.age || 0,
+                Genero: updatedUserData.gender || "No Especificado",
+                Estado: updatedUserData.status === "activo" ? true : false,
+                Maneja: updatedUserData.drives === "si" ? true : false,
+                UsaLentes: updatedUserData.wearsGlasses === "si" ? true : false,
+                Diabetico: updatedUserData.diabetic === "si" ? true : false,
+                OtraEnfermedad: updatedUserData.otherConditions || "",
+                AtributosAdicionales: updatedUserData.additionalAttributes || "",
+            };
+            console.log(data)
+            console.log(userId)
+
+            // Enviar los datos con PUT
+            const response = await axios.put(
+                `http://localhost:5051/api/persona/${userId}`,
+                data
+            );
+
+            console.log("Datos actualizados:", response.data);
+            setUserData(updatedUserData); // Actualiza el estado local si es necesario
+            alert("Datos actualizados correctamente.");
+            navigate("/"); // Redirige al usuario después de la actualización
+
+        } catch (error) {
+            console.error("Error al actualizar los datos:", error);
+            alert("Hubo un error al actualizar los datos.");
+        }
     };
 
     return (

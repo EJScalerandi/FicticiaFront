@@ -1,12 +1,11 @@
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function RegisterForm() {
+  const { userId } = useParams(); // Recupera el userId de la URL
   const [formData, setFormData] = useState({
-    nombres: "",
-    apellido: "",
+    nombreCompleto: "",
     identificacion: "",
     edad: "",
     genero: "",
@@ -17,8 +16,8 @@ function RegisterForm() {
     diabetico: false,
     otraEnfermedad: "",
   });
-  
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -30,38 +29,44 @@ function RegisterForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Asignamos valores predeterminados si los campos están vacíos
+    const dataToSend = {
+      Id: parseInt(userId),// Asignamos el userId al campo Id
+      NombreCompleto: formData.nombreCompleto || "Sin nombre", // Si está vacío, asignamos "Sin nombre"
+      Identificacion: formData.identificacion || "Sin identificación", // Si está vacío, asignamos "Sin identificación"
+      Edad: formData.edad ? parseInt(formData.edad) : 0, // Si está vacío, asignamos 0
+      Genero: formData.genero || "No especificado", // Si está vacío, asignamos "No especificado"
+      Estado: formData.estadoActivo, // Mantiene el valor booleano
+      Maneja: formData.maneja, // Mantiene el valor booleano
+      UsaLentes: formData.usaLentes, // Mantiene el valor booleano
+      Diabetico: formData.diabetico, // Mantiene el valor booleano
+      OtraEnfermedad: formData.otraEnfermedad || "No tiene otra enfermedad", // Si está vacío, asignamos ""
+      AtributosAdicionales: formData.atributosAdicionales || "Sin atributos adicionales", // Si está vacío, asignamos ""
+    };
+
+    console.log(dataToSend); // Verifica el objeto antes de enviarlo
+
     try {
-      // Aquí va el POST a la URL
-      // const response = await axios.post("TU_URL_AQUI", formData);
-      console.log("Datos enviados:", formData);
-      alert("Datos cargados correctamente.");
-      
-     
-      navigate("/"); 
+      // Enviar el JSON con los valores predeterminados
+      await axios.post(`${API_URL}/persona`, dataToSend);
+      alert("Datos de la persona registrados correctamente.");
+      navigate("/");
     } catch (error) {
-      console.error("Error al enviar el formulario:", error);
-      alert("Error al enviar el formulario.");
+      console.error("Error al registrar persona:", error);
+      alert("Error al registrar la persona.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      <h2>Registro de Persona</h2>
       <label>
-        Nombres:
+        Nombre Completo:
         <input
           type="text"
-          name="nombres"
-          value={formData.nombres}
-          onChange={handleChange}
-          required
-        />
-      </label>
-      <label>
-        Apellido:
-        <input
-          type="text"
-          name="apellido"
-          value={formData.apellido}
+          name="nombreCompleto"
+          value={formData.nombreCompleto}
           onChange={handleChange}
           required
         />
@@ -88,7 +93,12 @@ function RegisterForm() {
       </label>
       <label>
         Género:
-        <select name="genero" value={formData.genero} onChange={handleChange} required>
+        <select
+          name="genero"
+          value={formData.genero}
+          onChange={handleChange}
+          required
+        >
           <option value="">Selecciona</option>
           <option value="Masculino">Masculino</option>
           <option value="Femenino">Femenino</option>

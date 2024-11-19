@@ -12,38 +12,42 @@ function Header({ isLoggedIn, setIsLoggedIn, handleLogout }) {
     const navigate = useNavigate();  
 
     const API_URL = import.meta.env.VITE_API_URL;
-const handleAccess = async () => {
-    let errorMsg = validateFields(username, password);
-    if (!errorMsg) {
-        errorMsg = validatePasswordLength(password);
-    }
-    if (errorMsg) {
-        setError(errorMsg);
-        return;
-    }
-    console.log("Username:", username);
-    console.log("Password:", password);
-    try {
-        // Hacer la petición a la API de login
-        const response = await axios.post(`${API_URL}/personas/login`, { 
-            username, 
-            password 
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const { userId, persona } = response.data;
 
-        setIsLoggedIn(true);
-        alert("Acceso concedido");
-        navigate('/');
-    } catch (error) {
-        console.error("Error en el login:", error);
-        setError("Error al iniciar sesión. Verifica tus credenciales.");
-    }
-};
+    const handleAccess = async () => {
+        let errorMsg = validateFields(username, password);
+        if (!errorMsg) {
+            errorMsg = validatePasswordLength(password);
+        }
+        if (errorMsg) {
+            setError(errorMsg);
+            return;
+        }
+    
+        try {
+            // Hacer la petición a la API de login
+            const response = await axios.post(`${API_URL}/users/login`, { 
+                username, 
+                password 
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            const { userId } = response.data;
+    
+            // Guardar el userId en localStorage
+            localStorage.setItem('userId', userId);
+    
+            setIsLoggedIn(true);
+            alert("Acceso concedido");
+            navigate('/');
+    
+        } catch (error) {
+            console.error("Error en el login:", error);
+            setError("Error al iniciar sesión. Verifica tus credenciales.");
+        }
+    };
 
     return (
         <div className="container">
@@ -76,7 +80,7 @@ const handleAccess = async () => {
                     {error && <p className="error">{error}</p>}
                     <button onClick={handleAccess} className="button">Accede</button>
                     <p>Si no tienes cuenta aún, registrate en el siguiente botón</p>
-                    <Link to="/register">
+                    <Link to="/user-register">
                         <button className="button">Registrate</button>
                     </Link>
                 </div>

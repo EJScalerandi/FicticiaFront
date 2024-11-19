@@ -1,29 +1,49 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";  
+import axios from "axios";
 import { validateFields, validatePasswordLength } from "../assets/Validation";
 import { Link } from "react-router-dom";
 import "./Header.css";
-//prueba
+
 function Header({ isLoggedIn, setIsLoggedIn, handleLogout }) {
     const [username, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();  
 
-    const handleAccess = () => {
-        let errorMsg = validateFields(username, password);
-        if (!errorMsg) {
-            errorMsg = validatePasswordLength(password);
-        }
-        if (errorMsg) {
-            setError(errorMsg);
-            return;
-        }
-        setError("");
-        setIsLoggedIn(true); 
+    const API_URL = import.meta.env.VITE_API_URL;
+const handleAccess = async () => {
+    let errorMsg = validateFields(username, password);
+    if (!errorMsg) {
+        errorMsg = validatePasswordLength(password);
+    }
+    if (errorMsg) {
+        setError(errorMsg);
+        return;
+    }
+    console.log("Username:", username);
+    console.log("Password:", password);
+    try {
+        // Hacer la petición a la API de login
+        const response = await axios.post(`${API_URL}/personas/login`, { 
+            username, 
+            password 
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const { userId, persona } = response.data;
+
+        setIsLoggedIn(true);
         alert("Acceso concedido");
-        navigate('/');  
-    };
+        navigate('/');
+    } catch (error) {
+        console.error("Error en el login:", error);
+        setError("Error al iniciar sesión. Verifica tus credenciales.");
+    }
+};
 
     return (
         <div className="container">
